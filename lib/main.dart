@@ -14,6 +14,8 @@ import 'blocs/news/news_bloc.dart';
 import 'blocs/news/news_event.dart';
 import 'blocs/news/news_state.dart';
 
+import 'dialogs/app_theme.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
@@ -41,11 +43,9 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Навигация по техникуму',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1E88E5)),
-          useMaterial3: true,
-        ),
+        theme: AppTheme.light,
         home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state is AuthLoading || state is AuthInitial) {
@@ -58,7 +58,6 @@ class MyApp extends StatelessWidget {
               return const HomeScreen();
             }
 
-            // Не залогинен или ошибка — показываем логин
             return const LoginScreen();
           },
         ),

@@ -3,9 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../models/floor.dart';
-import '../models/graph.dart';
-import '../models/room.dart';
-
 import '../dialogs/room_query.dart';
 import '../widgets/floor_map.dart';
 
@@ -63,13 +60,21 @@ class MapScreen extends StatelessWidget {
             final List<LatLng> route = state.route;
 
             return Scaffold(
-              appBar: AppBar(title: Text(floor.name)),
-              body: FloorMap(
-                floor: floor,
-                nodeDots: const [], // как у тебя и было — скрыты
-                roomDots: const [], // скрыты
-                edgePolylines: const [], // скрыты
-                pathLatLng: route, // показываем только маршрут
+              appBar: AppBar(
+                title: Text(floor.name),
+              ),
+              body: Padding(
+                padding: const EdgeInsets.all(12),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: FloorMap(
+                    floor: floor,
+                    nodeDots: const [],
+                    roomDots: const [],
+                    edgePolylines: const [],
+                    pathLatLng: route,
+                  ),
+                ),
               ),
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.endFloat,
@@ -79,8 +84,8 @@ class MapScreen extends StatelessWidget {
                   FloatingActionButton.extended(
                     heroTag: 'fab_route',
                     onPressed: () => _onBuildRoutePressed(context),
-                    icon: const Icon(Icons.alt_route),
                     label: const Text('Маршрут'),
+                    icon: const Icon(Icons.alt_route),
                   ),
                   const SizedBox(height: 12),
                   FloatingActionButton.extended(
@@ -90,15 +95,14 @@ class MapScreen extends StatelessWidget {
                           .read<MapBloc>()
                           .add(const MapRefreshRequested());
                     },
-                    icon: const Icon(Icons.refresh),
                     label: const Text('Обновить'),
+                    icon: const Icon(Icons.refresh),
                   ),
                 ],
               ),
             );
           }
 
-          // На всякий случай
           return const Scaffold(
             body: Center(child: Text('Неизвестное состояние карты')),
           );

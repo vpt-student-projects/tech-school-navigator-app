@@ -43,10 +43,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       listener: (context, state) {
         if (state is AuthAuthenticated) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Регистрация успешна!')),
+            const SnackBar(content: Text('Регистрация успешна')),
           );
-          // после успешной регистрации main.dart покажет HomeScreen
-          Navigator.pop(context); // закроем экран регистрации
+          Navigator.pop(context);
         } else if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -54,43 +53,76 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Регистрация')),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              final isLoading = state is AuthLoading;
+        appBar: AppBar(
+          title: const Text('Регистрация'),
+        ),
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    final isLoading = state is AuthLoading;
 
-              return Column(
-                children: [
-                  TextField(
-                    controller: _emailController,
-                    decoration:
-                        const InputDecoration(labelText: 'Email'),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _passwordController,
-                    decoration:
-                        const InputDecoration(labelText: 'Пароль'),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _groupController,
-                    decoration:
-                        const InputDecoration(labelText: 'Группа'),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _onSignUpPressed,
-                    child: isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text('Зарегистрироваться'),
-                  ),
-                ],
-              );
-            },
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Создать аккаунт',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Заполните данные, чтобы зарегистрироваться.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF8E8E93),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        TextField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(labelText: 'Email'),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration:
+                              const InputDecoration(labelText: 'Пароль'),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _groupController,
+                          decoration:
+                              const InputDecoration(labelText: 'Группа'),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: isLoading ? null : _onSignUpPressed,
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white),
+                                  ),
+                                )
+                              : const Text('Зарегистрироваться'),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
         ),
       ),

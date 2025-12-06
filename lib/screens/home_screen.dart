@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'map_screen.dart';
+
+import 'floors_screen.dart';
 import 'news_screen.dart';
+import 'admin_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,47 +13,100 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _index = 0;
+  int _currentIndex = 0;
+  bool _isAdmin = false;
+  bool _roleLoaded = false;
 
-  final _titles = const ['Карта', 'Новости'];
-  final _tabs = const [
-    MapScreen(floorId: 1),
-    NewsScreen(embedded: true),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadRole();
+  }
+
+  Future<void> _loadRole() async {
+    try {
+      final client = Supabase.instance.client;
+      final user = client.auth.currentUser;
+      if (user == null) return;
+
+      final res = await client
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+      final role = (res['role'] as String?) ?? 'user';
+
+      if (mounted) {
+        setState(() {
+          _isAdmin = role == 'admin';
+          _roleLoaded = true;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isAdmin = false;
+          _roleLoaded = true;
+        });
+      }
+    }
+  }
 
   Future<void> _logout() async {
     await Supabase.instance.client.auth.signOut();
-    if (mounted) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
-    }
+    if (!mounted) return;
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/login', (route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
+    final pages = <Widget>[
+      const FloorsScreen(),
+      const NewsScreen(embedded: true),
+    ];
+
+    final titles = <String>[
+      'Карта',
+      'Новости',
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_index]),
+        title: Text(titles[_currentIndex]),
         actions: [
+          if (_roleLoaded && _isAdmin)
+            IconButton(
+              tooltip: 'Админ-панель',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.admin_panel_settings_outlined),
+            ),
           IconButton(
+            tooltip: 'Выйти',
             onPressed: _logout,
             icon: const Icon(Icons.logout),
-            tooltip: 'Выйти',
           ),
         ],
       ),
-      body: IndexedStack(index: _index, children: _tabs),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(
+      body: pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
+        items: const [
+          BottomNavigationBarItem(
             icon: Icon(Icons.map_outlined),
-            selectedIcon: Icon(Icons.map),
             label: 'Карта',
           ),
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: Icon(Icons.article_outlined),
-            selectedIcon: Icon(Icons.article),
             label: 'Новости',
           ),
         ],

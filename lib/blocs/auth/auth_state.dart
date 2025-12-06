@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show User;
 
-/// Наше состояние авторизации.
-/// НИКАКОГО AuthState из Supabase здесь нет.
+import '../../models/user_profile.dart';
+
 abstract class AuthState extends Equatable {
   const AuthState();
 
@@ -16,11 +16,12 @@ class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
   final User user;
+  final UserProfile? profile; // можно будет подгружать профиль из таблицы profiles
 
-  const AuthAuthenticated(this.user);
+  const AuthAuthenticated(this.user, {this.profile});
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, profile];
 }
 
 class AuthUnauthenticated extends AuthState {}
