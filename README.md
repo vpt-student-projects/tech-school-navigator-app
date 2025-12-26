@@ -83,3 +83,6 @@ graph TB
     Services --> DataServer  
     DataServer --> DB  
     Services -.->|Кэш| Cache  
+
+# Разработчики
+Студенты группы ИСП-8 Бугайчук А.Е, Аппалонова С.А.
